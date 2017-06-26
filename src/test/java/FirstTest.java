@@ -8,28 +8,28 @@ import org.junit.Test;
 
 public class FirstTest {
 
+    Attribute<Gender> gender = new StandardAttribute<>(
+            "gender",
+            dependencyAttributes -> Gender.Female
+    );
+
+    Attribute<String> lastName = new StandardAttribute<>(
+            "lastName",
+            dependencyAttributes -> DataHelper.getRandomLastName()
+    );
+
+    Attribute<String> firstName = new StandardAttribute<>(
+            "firstName",
+            dependencyAttributes -> DataHelper.getRandomFirstName(dependencyAttributes.get("gender"))
+    );
+
+    Attribute<String> phoneNumber = new StandardAttribute<>(
+            "mobilePhone",
+            dependencyAttributes -> DataHelper.getRandomMobilePhoneNumber()
+    );
+
     @Test
     public void simpleTest() {
-
-        Attribute<Gender> gender = new StandardAttribute<>(
-                "gender",
-                dependencyAttributes -> Gender.Female
-        );
-
-        Attribute<String> lastName = new StandardAttribute<>(
-                "lastName",
-                dependencyAttributes -> DataHelper.getRandomLastName()
-        );
-
-        Attribute<String> firstName = new StandardAttribute<>(
-                "firstName",
-                dependencyAttributes -> DataHelper.getRandomFirstName(dependencyAttributes.get("gender"))
-        );
-
-        Attribute<String> phoneNumber = new StandardAttribute<>(
-                "mobilePhone",
-                dependencyAttributes -> DataHelper.getRandomMobilePhoneNumber()
-        );
 
         DocumentBuilder documentBuilder = new DocumentBuilder()
                 .addAttribute(gender)
