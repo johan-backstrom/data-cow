@@ -30,8 +30,8 @@ to return a hard coded value from the lambda.
 
 ```
 Attribute<String> firstName = new StandardAttribute<>(
-        "firstName",
-        dependencyAttributes -> "Michael"
+    "firstName",
+    dependencyAttributes -> "Michael"
 );
 ```
 
@@ -69,21 +69,21 @@ The gender attribute is then passed in the map of attributes to the firstName at
 public class SimplePersonCreator{
 
     Attribute<Gender> gender = new StandardAttribute<>(
-            "gender",
-            dependencyAttributes -> SomeHelperClass.getRandomGender()
+        "gender",
+        dependencyAttributes -> SomeHelperClass.getRandomGender()
     );
 
     Attribute<String> firstName = new StandardAttribute<>(
-            "firstName",
-            dependencyAttributes -> dependencyAttributes.get("gender").equals(Gender.Female) ? "Mariah" : "Michael"
+        "firstName",
+        dependencyAttributes -> dependencyAttributes.get("gender").equals(Gender.Female) ? "Mariah" : "Michael"
     );
     
     public Map<String, Object> createPerson(){
-            DocumentBuilder documentBuilder = new DocumentBuilder()
-                .addAttribute(gender)
-                .addAttribute(firstName)
-                .addDependency(firstName, gender)
-                .buildDataForEmptyAttributes();
+        DocumentBuilder documentBuilder = new DocumentBuilder()
+            .addAttribute(gender)
+            .addAttribute(firstName)
+            .addDependency(firstName, gender)
+            .buildDataForEmptyAttributes();
     
         return documentBuilder.toMap();
     }
@@ -107,15 +107,15 @@ while letting the framework auto generate all the attributes that are not releva
 ```java
 public class SimplePersonCreator{
 
-        Attribute<Gender> gender = new StandardAttribute<>(
-                "gender",
-                dependencyAttributes -> SomeHelperClass.getRandomGender()
-        );
-    
-        Attribute<String> firstName = new StandardAttribute<>(
-                "firstName",
-                dependencyAttributes -> dependencyAttributes.get("gender").equals(Gender.Female) ? "Mariah" : "Michael"
-        );
+    Attribute<Gender> gender = new StandardAttribute<>(
+        "gender",
+        dependencyAttributes -> SomeHelperClass.getRandomGender()
+    );
+
+    Attribute<String> firstName = new StandardAttribute<>(
+        "firstName",
+        dependencyAttributes -> dependencyAttributes.get("gender").equals(Gender.Female) ? "Mariah" : "Michael"
+    );
     
     public SimplePersonCreator setGender(Gender gender){
         this.gender.setValue(gender);
@@ -123,12 +123,12 @@ public class SimplePersonCreator{
     }
     
     public Map<String, Object> createPerson(){
-            DocumentBuilder documentBuilder = new DocumentBuilder()
-                .addAttribute(gender)
-                .addAttribute(firstName)
-                .addDependency(firstName, gender)
-                .buildDataForEmptyAttributes();
-    
+        DocumentBuilder documentBuilder = new DocumentBuilder()
+            .addAttribute(gender)
+            .addAttribute(firstName)
+            .addDependency(firstName, gender)
+            .buildDataForEmptyAttributes();
+
         return documentBuilder.toMap();
     }
 }
@@ -136,7 +136,10 @@ public class SimplePersonCreator{
 
 This allows the user of our SimplePersonCreator to create an object that suits his/her needs. In the following example
 we create a random object with the attributes relevant to the test specified. If we change the information model in a way
-that is not relevant to this test, it is is completely unaffected. Compare this to the 
+that is not relevant to this test, it is is completely unaffected. 
+
+Compare this to keeping test data for the entire model in something like an xml file or sql-script where every change
+  to the model will affect every script.
 
 ```java
 public class PersonTest{
@@ -160,7 +163,7 @@ Download using gradle or maven. As of 2017-06-25 synching to Maven Central is in
 Gradle:
 
 ```
-compile group: 'com.github.johan.backstrom', name: 'data-cow', version: '1.0'
+compile group: 'com.github.johan-backstrom', name: 'data-cow', version: '1.0'
 ```
 
 ## Build
