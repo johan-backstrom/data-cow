@@ -3,14 +3,16 @@
 The idea behind Data Cow is to be able to create datasets for testing with a minimum amount of maintenance applying the
 principles of "Test Data as Code".
 
-## Concepts
+## Test Data as Code
 
 The main concept in Data Cow is to treat test data as code. Just like "infrastructure as code" and "configuration as code"
 which has gained popularity in the DevOps community, test data can and *should* be managed by a declarative approach. 
 
 The central idea is that the "Cattle vs. Pets" metaphore is applied to test data. Instead of managing sets of actual
 data in databases or script (pets), a recipe for the needed data is defined, and the data is then created when and where
-is is needed (cattle). Changes in the information model are handled by fefactoring code rather than transforming data.
+it is needed (cattle). Changes in the information model are handled by refactoring code rather than transforming data.
+
+## Concepts
 
 In Data Cow, the information model is declared as a graph where the nodes are called attributes and the edges are called 
 dependencies.
