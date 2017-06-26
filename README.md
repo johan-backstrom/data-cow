@@ -156,6 +156,17 @@ public class PersonTest{
 }
 ```
 
+### Converting to proper POJOs
+
+The document builder will return a map with attribute names and values. The simplest way to convert this to a proper POJO
+is by using Jackson in the following way:
+
+```
+MyPerson person = new ObjectMapper().convertValue(documentBuilder.toMap(), MyPerson.class);
+```
+
+In this example I have choosen to create a model object called MyPerson. 
+
 ## Download
 
 Download using gradle or maven. As of 2017-06-25 synching to Maven Central is in progress and artifacts will soon be availiable!
