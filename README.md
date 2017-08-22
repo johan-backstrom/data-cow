@@ -12,6 +12,11 @@ The central idea is that the "Cattle vs. Pets" metaphore is applied to test data
 data in databases or script (pets), a recipe for the needed data is defined, and the data is then created when and where
 it is needed (cattle). Changes in the information model are handled by refactoring code rather than transforming data.
 
+One of the main benefits of using data cow is that you can build data where you specify only the attributes that are of
+importance to you and then let data-cow generate random data, but consistent with the specified values, for all other 
+attributes. This will radically reduce maintenance of test data compared to maintaining a complete data set in for example
+text files or databases.
+
 ## Concepts
 
 In Data Cow, the information model is declared as a graph where the nodes are called attributes and the edges are called 
@@ -58,6 +63,26 @@ Circular dependencies could lead to an infinite recursion if no values were set.
 generation function will be called when all its dependencies point to nodes that have already been traversed by the 
 data generation.
 
+## Download
+
+Download from Maven central using gradle or maven.
+
+Gradle:
+
+```
+compile 'com.github.johan-backstrom:data-cow:1.0.0'
+```
+
+Maven:
+
+```
+<dependency>
+    <groupId>com.github.johan-backstrom</groupId>
+    <artifactId>data-cow</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
 ## Examples
 
 ### A random person
@@ -90,6 +115,7 @@ public class SimplePersonCreator{
         return documentBuilder.toMap();
     }
 }
+
 ```
 
 
@@ -168,16 +194,6 @@ MyPerson person = new ObjectMapper().convertValue(documentBuilder.toMap(), MyPer
 ```
 
 In this example I have choosen to create a model object called MyPerson. 
-
-## Download
-
-Download using gradle or maven. As of 2017-06-25 synching to Maven Central is in progress and artifacts will soon be availiable!
-
-Gradle:
-
-```
-compile group: 'com.github.johan-backstrom', name: 'data-cow', version: '1.0'
-```
 
 ## Build
 

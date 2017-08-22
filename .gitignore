@@ -14,3 +14,5 @@
 
 .gradle
 .idea
+
+gradle.properties
