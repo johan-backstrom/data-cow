@@ -1,17 +1,19 @@
-package com.github.johan.backstrom.data.person.sweden;
+package com.github.johan.backstrom.entities.person;
 
 import com.github.johan.backstrom.common.core.Attribute;
-import com.github.johan.backstrom.common.core.Randomness;
-import com.github.johan.backstrom.common.standard.DefaultRandomnessImplementation;
-import com.github.johan.backstrom.data.person.Gender;
+import com.github.johan.backstrom.common.util.DefaultRandomnessImplementation;
+import com.github.johan.backstrom.common.util.Randomness;
+import com.github.johan.backstrom.entities.Country;
 import com.google.common.base.Strings;
 
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataHelper {
 
-    private static Randomness random = new DefaultRandomnessImplementation();;
+    private static Randomness random = new DefaultRandomnessImplementation();
 
     public static String getRandomFirstName(Attribute<Gender> genderAttribute) {
         return genderAttribute.getValue().equals(Gender.Male) ?
@@ -52,8 +54,16 @@ public class DataHelper {
         return String.format("%s%s", "+46", getRandomZeroPaddedNumber(800000000, 899999999, 9));
     }
 
-    public static String getRandomMobilePhoneNumber() {
-        return String.format("%s%s", "+46", getRandomZeroPaddedNumber(700000000, 769999999, 9));
+    public static String getRandomMobilePhoneNumber(Country country) {
+        return String.format("%s%s", country.getDialingPrefix(), getRandomZeroPaddedNumber(700000000, 769999999, 9));
+    }
+
+    public static List<String> getRandomMobilePhoneNumbers(Attribute<Integer> numberOfNumbers, Attribute<Country> country){
+        List<String> phones = new ArrayList<>();
+        for (int i = 1; i <= numberOfNumbers.getValue(); i++){
+            phones.add(getRandomMobilePhoneNumber(country.getValue()));
+        }
+        return phones;
     }
 
     public static String getRandomDateOfBirth() {
@@ -119,6 +129,10 @@ public class DataHelper {
 
     public static Integer getRandomNumber(int max) {
         return random.getRandomInteger(0, max);
+    }
+
+    public static Integer getRandomNumber(int min, int max) {
+        return random.getRandomInteger(min, max);
     }
 
     private static int getRandomIndex(int length) {

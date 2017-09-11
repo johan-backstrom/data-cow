@@ -2,8 +2,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.johan.backstrom.common.DocumentBuilder;
 import com.github.johan.backstrom.common.core.Attribute;
 import com.github.johan.backstrom.common.standard.StandardAttribute;
-import com.github.johan.backstrom.data.person.sweden.DataHelper;
-import com.github.johan.backstrom.data.person.Gender;
+import com.github.johan.backstrom.entities.Country;
+import com.github.johan.backstrom.entities.person.DataHelper;
+import com.github.johan.backstrom.entities.person.Gender;
 import org.junit.Test;
 
 public class FirstTest {
@@ -25,8 +26,9 @@ public class FirstTest {
 
     Attribute<String> phoneNumber = new StandardAttribute<>(
             "mobilePhone",
-            dependencyAttributes -> DataHelper.getRandomMobilePhoneNumber()
+            dependencyAttributes -> DataHelper.getRandomMobilePhoneNumber(Country.SWEDEN)
     );
+
 
     @Test
     public void simpleTest() {

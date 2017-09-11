@@ -1,4 +1,4 @@
-package com.github.johan.backstrom.common.core;
+package com.github.johan.backstrom.common.util;
 
 public interface Randomness {
 
