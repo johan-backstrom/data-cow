@@ -12,6 +12,6 @@ public class PersonBuilderTest {
 
     @Test
     public void createCreditCard(){
-        System.out.println(new CreditCardBuilder().build());
+        System.out.println(new CreditCardBuilder().toString());
     }
 }

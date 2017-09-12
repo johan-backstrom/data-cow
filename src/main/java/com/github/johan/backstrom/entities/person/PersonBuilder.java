@@ -1,10 +1,15 @@
 package com.github.johan.backstrom.entities.person;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.johan.backstrom.common.DocumentBuilder;
 import com.github.johan.backstrom.common.core.Attribute;
 import com.github.johan.backstrom.common.standard.StandardAttribute;
 import com.github.johan.backstrom.entities.Country;
+import com.github.johan.backstrom.entities.finance.CreditCardBuilder;
+import com.github.johan.backstrom.entities.util.DataHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,12 +37,12 @@ public class PersonBuilder {
             input -> DataHelper.getRandomLastName()
     );
 
-    Attribute<Integer> numberOfPhoneNumbers =  new StandardAttribute<>(
+    Attribute<Integer> numberOfPhoneNumbers = new StandardAttribute<>(
             "numberOfPhoneNumbers",
             input -> DataHelper.getRandomNumber(1, 3)
     );
 
-    Attribute<List<String>> phoneNumbers =  new StandardAttribute<>(
+    Attribute<List<String>> phoneNumbers = new StandardAttribute<>(
             "phoneNumbers",
             input -> DataHelper.getRandomMobilePhoneNumbers(
                     input.get("numberOfPhoneNumbers"),
@@ -45,9 +50,15 @@ public class PersonBuilder {
             )
     );
 
-    Attribute<Map<String, Object>> numberOfPhoneNumbers =  new StandardAttribute<>(
-            "numberOfPhoneNumbers",
-            input -> DataHelper.getRandomNumber(1, 3)
+    Attribute<List<Map<String, Object>>> creditCards = new StandardAttribute<>(
+            "creditCards",
+            input -> {
+                List<Map<String, Object>> cards = new ArrayList<>();
+                for (int i = 0; i < DataHelper.getRandomNumber(3); i++) {
+                    cards.add(new CreditCardBuilder().toMap());
+                }
+                return cards;
+            }
     );
 
     public PersonBuilder() {
@@ -57,17 +68,22 @@ public class PersonBuilder {
         person.addAttribute(lastName);
         person.addAttribute(numberOfPhoneNumbers);
         person.addAttribute(phoneNumbers);
+        person.addAttribute(creditCards);
 
         person.addDependency(givenName, gender);
         person.addDependency(phoneNumbers, numberOfPhoneNumbers);
         person.addDependency(phoneNumbers, countryOfResidence);
     }
 
-    public String build(){
-        return person.buildDataForEmptyAttributes().toString();
+    public String build() {
+        try {
+            return new ObjectMapper().writeValueAsString(person.buildDataForEmptyAttributes().toMap());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public PersonBuilder setGender(Gender gender){
+    public PersonBuilder setGender(Gender gender) {
         this.gender.setValue(gender);
         return this;
     }

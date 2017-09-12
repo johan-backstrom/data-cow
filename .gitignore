@@ -15,7 +15,5 @@
 .gradle
 .idea
 data-cow.iml
-
-secrets/gradle.properties
 build/
 secrets/

@@ -1,9 +1,10 @@
-package com.github.johan.backstrom.entities.person;
+package com.github.johan.backstrom.entities.util;
 
 import com.github.johan.backstrom.common.core.Attribute;
 import com.github.johan.backstrom.common.util.DefaultRandomnessImplementation;
 import com.github.johan.backstrom.common.util.Randomness;
 import com.github.johan.backstrom.entities.Country;
+import com.github.johan.backstrom.entities.person.Gender;
 import com.google.common.base.Strings;
 
 import java.text.ParseException;

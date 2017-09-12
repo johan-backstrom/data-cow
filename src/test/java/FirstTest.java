@@ -3,7 +3,7 @@ import com.github.johan.backstrom.common.DocumentBuilder;
 import com.github.johan.backstrom.common.core.Attribute;
 import com.github.johan.backstrom.common.standard.StandardAttribute;
 import com.github.johan.backstrom.entities.Country;
-import com.github.johan.backstrom.entities.person.DataHelper;
+import com.github.johan.backstrom.entities.util.DataHelper;
 import com.github.johan.backstrom.entities.person.Gender;
 import org.junit.Test;
 
