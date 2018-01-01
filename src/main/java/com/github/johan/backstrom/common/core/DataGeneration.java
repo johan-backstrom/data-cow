@@ -4,5 +4,5 @@ import java.util.Map;
 
 public interface DataGeneration<T> {
 
-    T getData(Map<String, Attribute> params);
+    T generateData(Map<String, Attribute> params);
 }

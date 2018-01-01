@@ -27,7 +27,7 @@ public class StandardAttribute<T> implements Attribute<T> {
 
     @Override
     public void generateAttributeData(Map<String, Attribute> parents) {
-        value = dataGeneration.getData(parents);
+        value = dataGeneration.generateData(parents);
     }
 
     @Override

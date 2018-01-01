@@ -15,4 +15,6 @@
 .gradle
 .idea
 
-gradle.properties
+secrets/gradle.properties
+build/
+secrets/
