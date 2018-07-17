@@ -26,6 +26,16 @@ public class DocumentBuilder {
         return this;
     }
 
+    public DocumentBuilder removeAttribute(Attribute attribute) {
+        graph.removeVertex(attribute);
+        return this;
+    }
+
+    public DocumentBuilder removeDependency(Attribute attribute, Attribute parentAttribute) {
+        graph.removeEdge(parentAttribute, attribute);
+        return this;
+    }
+
     public DocumentBuilder buildDataForEmptyAttributes() {
         Set<Attribute> attributes = new HashSet<>();
         graph.vertexSet().forEach(

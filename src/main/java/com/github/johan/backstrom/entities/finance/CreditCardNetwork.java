@@ -14,11 +14,6 @@ public enum CreditCardNetwork {
         this.startingDigit = startingDigit;
     }
 
-    public static CreditCardNetwork getRandomCreditCardNetwork(){
-        // introduce proper randomness
-        return CreditCardNetwork.values()[(int)(Math.random() * CreditCardNetwork.values().length)];
-    }
-
     public String getCreditCardNetworkName() {
         return creditCardNetworkName;
     }

@@ -26,6 +26,16 @@ public class StandardAttribute<T> implements Attribute<T> {
     }
 
     @Override
+    public void setGenerator(DataGeneration<T> dataGeneration){
+        this.dataGeneration = dataGeneration;
+    }
+
+    @Override
+    public void setValidator(DataValidation dataValidation){
+        this.dataValidation = dataValidation;
+    }
+
+    @Override
     public void generateAttributeData(Map<String, Attribute> parents) {
         value = dataGeneration.generateData(parents);
     }

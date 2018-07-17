@@ -3,12 +3,12 @@ package com.github.johan.backstrom.entities.util;
 import com.github.johan.backstrom.common.core.Attribute;
 import com.github.johan.backstrom.common.util.DefaultRandomnessImplementation;
 import com.github.johan.backstrom.common.util.Randomness;
-import com.github.johan.backstrom.entities.Country;
-import com.github.johan.backstrom.entities.person.Gender;
+import com.github.johan.backstrom.entities.Countries;
 import com.google.common.base.Strings;
 
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,16 +16,11 @@ public class DataHelper {
 
     private static Randomness random = new DefaultRandomnessImplementation();
 
-    public static String getRandomFirstName(Attribute<Gender> genderAttribute) {
-        return genderAttribute.getValue().equals(Gender.Male) ?
-                maleSwedishNames[getRandomIndex(maleSwedishNames.length)]
-                : femaleSwedishNames[getRandomIndex(femaleSwedishNames.length)];
+    public static void setRandomness(Randomness randomness){
+        random = randomness;
     }
 
-    public static String getRandomLastName() {
-        return maleSwedishNames[getRandomIndex(maleSwedishNames.length)].concat("sson").replace("sss", "ss");
 
-    }
 
     public static String getRandomStreet() {
         return streetPrefixes[getRandomIndex(streetPrefixes.length)].concat(streetTypes[getRandomIndex(streetTypes.length)]);
@@ -55,11 +50,11 @@ public class DataHelper {
         return String.format("%s%s", "+46", getRandomZeroPaddedNumber(800000000, 899999999, 9));
     }
 
-    public static String getRandomMobilePhoneNumber(Country country) {
+    public static String getRandomMobilePhoneNumber(Countries country) {
         return String.format("%s%s", country.getDialingPrefix(), getRandomZeroPaddedNumber(700000000, 769999999, 9));
     }
 
-    public static List<String> getRandomMobilePhoneNumbers(Attribute<Integer> numberOfNumbers, Attribute<Country> country){
+    public static List<String> getRandomMobilePhoneNumbers(Attribute<Integer> numberOfNumbers, Attribute<Countries> country){
         List<String> phones = new ArrayList<>();
         for (int i = 1; i <= numberOfNumbers.getValue(); i++){
             phones.add(getRandomMobilePhoneNumber(country.getValue()));
@@ -67,12 +62,12 @@ public class DataHelper {
         return phones;
     }
 
-    public static String getRandomDateOfBirth() {
-        return String.format(
-                "%s-%s-%s",
-                getRandomZeroPaddedNumber(1900, 2015, 4),
-                getRandomZeroPaddedNumber(1, 12, 2),
-                getRandomZeroPaddedNumber(1, 31, 2)
+    public static LocalDate getRandomDateOfBirth() {
+        Month month = Month.of(random.getRandomInteger(1, 12));
+        return LocalDate.of(
+                random.getRandomInteger(1900, 2015),
+                month,
+                random.getRandomInteger(1, month.minLength())
         );
     }
 
@@ -139,56 +134,6 @@ public class DataHelper {
     private static int getRandomIndex(int length) {
         return getRandomNumber(length - 1);
     }
-
-    private final static String[] maleSwedishNames = {
-            "Adam",
-            "Bertil",
-            "Cesar",
-            "David",
-            "Erik",
-            "Filip",
-            "Gustav",
-            "Helge",
-            "Ivar",
-            "Johan",
-            "Kalle",
-            "Ludvig",
-            "Martin",
-            "Niklas",
-            "Olof",
-            "Petter",
-            "Qvintus",
-            "Rudolf",
-            "Sigurd",
-            "Tore",
-            "Urban",
-            "Viktor",
-            "Wilhelm",
-            "Xerxes",
-            "Yngve",
-            "Zäta",
-            "Åke",
-            "Ärlig",
-            "Östen",
-            // Some extra funny swedish names:
-            "Tommy",
-            "Johan",
-            "Max",
-            "Pär",
-            "Ragnar",
-            "Björn"
-    };
-
-    private final static String[] femaleSwedishNames = {
-            "Mikaela",
-            "Carolina",
-            "Anna",
-            "Erika",
-            "Filippa",
-            "Helena",
-            "Ivana",
-            "Johanna"
-    };
 
 
     private final static String[] streetPrefixes = {
