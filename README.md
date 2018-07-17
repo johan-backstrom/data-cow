@@ -198,3 +198,5 @@ In this example I have choosen to create a model object called MyPerson.
 ## Build
 
 ![alt text](https://travis-ci.org/johan-backstrom/data-cow.svg?branch=master "Curent build status")
+
+https://travis-ci.org/johan-backstrom/data-cow
