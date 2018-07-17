@@ -50,4 +50,16 @@ public class FirstTest {
 
         }
     }
+
+    @Test
+    public void attributeHasNullValue(){
+        Attribute<String> nullValue = new StandardAttribute<String>(
+                "aNullValue",
+                params -> null
+        );
+        DocumentBuilder documentBuilder = new DocumentBuilder();
+        documentBuilder.addAttribute(nullValue);
+        documentBuilder.buildDataForEmptyAttributes();
+        documentBuilder.toMap();
+    }
 }

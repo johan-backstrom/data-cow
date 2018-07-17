@@ -45,10 +45,12 @@ public class DocumentBuilder {
     }
 
     public Map<String, Object> toMap() {
-        return graph
-                .vertexSet()
-                .stream()
-                .collect(Collectors.toMap(Attribute::getName, Attribute::getValue));
+
+        Map<String, Object> result = new HashMap<>();
+        for (Attribute attribute : graph.vertexSet()){
+            result.put(attribute.getName(), attribute.getValue());
+        }
+        return result;
     }
 
     // Takes a set of attributes that should not be traversed
