@@ -1,9 +1,8 @@
-package datacow2;
+package datacow2.generators;
 
 import com.github.johan.backstrom.common.corev2.DataCow;
 import com.github.johan.backstrom.common.corev2.Generator;
 import com.github.johan.backstrom.common.corev2.References;
-import com.github.johan.backstrom.common.corev2.WithGenerators;
 import datacow2.models.simple.SimpleObjectWithMultipleAttributes;
 
 public class Generators {
@@ -89,5 +88,10 @@ public class Generators {
             @References("cirkular1") String parent
     ){
         return "Cirkular 3, " + parent;
+    }
+
+    @Generator("nullValue")
+    public String nullValue(){
+        return null;
     }
 }

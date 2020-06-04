@@ -1,13 +1,17 @@
 package datacow2;
 
 import com.github.johan.backstrom.common.corev2.DataCow;
+import com.github.johan.backstrom.common.corev2.exception.GeneratorNotFoundException;
+import datacow2.models.annotation.GeneratorNotFound;
+import datacow2.models.annotation.NoGeneratorSpecified;
 import datacow2.models.simple.SimpleObjectWithMultipleAttributes;
+import datacow2.models.simple.SimpleObjectWithNullValue;
 import datacow2.models.simple.SimpleObjectWithSingleAttribute;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class SimpleValueGeneration {
+public class SimpleValueGenerationTest {
 
     @Test
     public void createSingleValueInSimpleObject(){
@@ -54,5 +58,24 @@ public class SimpleValueGeneration {
                 .milkCow();
 
         assertEquals(123, o.aPrimitiveType);
+    }
+
+    @Test
+    public void generateNullValue(){
+        SimpleObjectWithNullValue o = DataCow.generateDairyFor(SimpleObjectWithNullValue.class)
+                .milkCow();
+
+        assertEquals("SimpleGeneratedValue", o.aSingleValue);
+        assertEquals(null, o.nullValue);
+    }
+
+    @Test(expected = GeneratorNotFoundException.class)
+    public void generatorNotFound(){
+        GeneratorNotFound o = DataCow.generateDairyFor(GeneratorNotFound.class).milkCow();
+    }
+
+    @Test(expected = GeneratorNotFoundException.class)
+    public void noGeneratorClassDefined(){
+        NoGeneratorSpecified o = DataCow.generateDairyFor(NoGeneratorSpecified.class).milkCow();
     }
 }

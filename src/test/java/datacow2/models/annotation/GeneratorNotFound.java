@@ -1,16 +1,13 @@
-package datacow2.models.simple;
+package datacow2.models.annotation;
 
 import com.github.johan.backstrom.common.corev2.Attribute;
 import com.github.johan.backstrom.common.corev2.WithGenerators;
 import datacow2.generators.Generators;
 
 @WithGenerators(Generators.class)
-public class SimpleObjectWithDependency {
+public class GeneratorNotFound {
 
-    @Attribute("parentAttribute")
-    public String parent;
-
-    @Attribute("childAttribute")
-    public String child;
+    @Attribute("notFound")
+    public String notFound;
 
 }

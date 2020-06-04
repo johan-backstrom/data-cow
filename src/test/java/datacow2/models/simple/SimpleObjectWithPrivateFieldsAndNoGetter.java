@@ -5,15 +5,12 @@ import com.github.johan.backstrom.common.corev2.WithGenerators;
 import datacow2.generators.Generators;
 
 @WithGenerators(Generators.class)
-public class SimpleObjectWithCirkularDependency {
+public class SimpleObjectWithPrivateFieldsAndNoGetter {
 
-    @Attribute("cirkular1")
-    public String cirkular1;
+    @Attribute("aSingleValue")
+    private String aSingleValue;
 
-    @Attribute("cirkular2")
-    public String cirkular2;
-
-    @Attribute("cirkular3")
-    public String cirkular3;
+    @Attribute("aString")
+    private String aString;
 
 }

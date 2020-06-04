@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class ComplexType {
+public class ComplexTypeTest {
 
     @Test
     public void objectWithComplexTypeMember(){
