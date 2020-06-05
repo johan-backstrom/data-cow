@@ -3,8 +3,11 @@ package com.github.johan.backstrom.common.corev2;
 import com.github.johan.backstrom.common.corev2.exception.DuplicateAttributeException;
 import com.github.johan.backstrom.common.corev2.exception.GeneratorNotFoundException;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.github.johan.backstrom.common.corev2.FieldType.*;
 
 public class DataCow<T> {
 
@@ -13,6 +16,8 @@ public class DataCow<T> {
     private Map<String, DataGenerator> generators = new HashMap<>();
     private Map<String, DataField> allFields = new HashMap<>();
     private Set<String> handledFieldAttributeIds = new HashSet<>();
+    private Set<Class> withGenerators = new HashSet<>();
+    private boolean useFieldByName;
 
     public static <T> DataCow<T> generateDairyFor(Class<T> clazz) {
 
@@ -23,7 +28,6 @@ public class DataCow<T> {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        theCow.collectGenerators();
 
         return theCow;
     }
@@ -33,21 +37,36 @@ public class DataCow<T> {
         return this;
     }
 
+    public DataCow<T> withGenerator(Class clazz) {
+        this.withGenerators.add(clazz);
+        return this;
+    }
+
+    public DataCow<T> useVariableNamesAsAttributeId(){
+        this.useFieldByName = true;
+        return this;
+    }
+
     public T milkCow() {
 
+        generators = collectGenerators();
         allFields = collectFields();
-        checkThatAllFieldsHaveGenerators();
+        checkThatAllFieldsHaveGenerators(generators, allFields);
         allFields.values().forEach(field -> milkFieldAndParentsRecursively(field));
         return theDairy;
     }
 
-    private void collectGenerators() {
+    private Map<String, DataGenerator> collectGenerators() {
 
-        if (clazz.getAnnotation(WithGenerators.class) == null) {
+        if (clazz.getAnnotation(WithGenerators.class) != null) {
+            withGenerators.addAll(Arrays.asList(clazz.getAnnotation(WithGenerators.class).value()));
+        }
+
+        if (withGenerators.isEmpty()) {
             throw new GeneratorNotFoundException("@WithGenerators was not specified in class " + clazz.getName());
         }
 
-        Map<Class, Object> generatorInstanceObjects = Arrays.stream(clazz.getAnnotation(WithGenerators.class).value())
+        Map<Class, Object> generatorInstanceObjects = withGenerators.stream()
                 .collect(
                         Collectors.toMap(
                                 aClass -> aClass,
@@ -61,9 +80,9 @@ public class DataCow<T> {
                         )
                 );
 
-        this.generators = generatorInstanceObjects.keySet().stream()
+        return generatorInstanceObjects.keySet().stream()
                 .map(classToScan -> Arrays.asList(classToScan.getDeclaredMethods()))
-                .flatMap(Collection::stream)
+                .flatMap(methods -> methods.stream())
                 .filter(method -> method.isAnnotationPresent(Generator.class))
                 .map(method -> DataGenerator.builder()
                         .setAttributeId(method.getDeclaredAnnotation(Generator.class).value())
@@ -90,30 +109,40 @@ public class DataCow<T> {
 
     private Map<String, DataField> collectFields() {
         return Arrays.stream(theDairy.getClass().getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(Attribute.class))
-                .filter(field -> field.getAnnotationsByType(Attribute.class).length > 0)
+                .filter(field -> field.isAnnotationPresent(Attribute.class) || useFieldByName)
                 .map(field -> new DataField(
-                                field.getAnnotationsByType(Attribute.class)[0].value(),
+                                field.isAnnotationPresent(Attribute.class)
+                                        ? field.getAnnotationsByType(Attribute.class)[0].value()
+                                        : field.getName(),
                                 theDairy,
-                                field
+                                field,
+                                field.isAnnotationPresent(Attribute.class) ? annotatedField : namedField
                         )
                 )
                 .collect(
                         Collectors.toMap(
                                 field -> field.getAttributeId(),
                                 field -> field,
-                                (field1, field2) -> {
-                                    throw new DuplicateAttributeException(String.format("Duplicate attribute ids found in attributes %s and %s", field1.getQualifiedFieldName(), field2.getQualifiedFieldName()));
-                                }
+                                (field1, field2) -> getFieldWithHighestPrio(field1, field2)
                         )
                 );
     }
 
-    private void checkThatAllFieldsHaveGenerators() {
+    private DataField getFieldWithHighestPrio(DataField field1, DataField field2){
+        if (field1.getFieldType().equals(field2.getFieldType())){
+            throw new DuplicateAttributeException(String.format("Duplicate attribute ids found in attributes %s and %s", field1.getQualifiedFieldName(), field2.getQualifiedFieldName()));
+        } else if (annotatedField.equals(field1.getFieldType())){
+            return field1;
+        } else {
+            return field2;
+        }
+    }
 
-        if (!generators.keySet().containsAll(allFields.keySet())) {
+    private void checkThatAllFieldsHaveGenerators(Map<String, DataGenerator> generators, Map<String, DataField> fields) {
 
-            Set<String> attributeIds = allFields.keySet();
+        if (!generators.keySet().containsAll(fields.keySet())) {
+
+            Set<String> attributeIds = fields.keySet();
             attributeIds.removeAll(generators.keySet());
             throw new GeneratorNotFoundException(
                     String.format(

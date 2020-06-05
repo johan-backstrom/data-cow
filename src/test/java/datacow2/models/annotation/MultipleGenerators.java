@@ -2,10 +2,10 @@ package datacow2.models.annotation;
 
 import com.github.johan.backstrom.common.corev2.Attribute;
 import com.github.johan.backstrom.common.corev2.WithGenerators;
-import datacow2.generators.Generator2;
+import datacow2.generators.Generators2;
 import datacow2.generators.Generators;
 
-@WithGenerators({Generators.class, Generator2.class})
+@WithGenerators({Generators.class, Generators2.class})
 public class MultipleGenerators {
 
     @Attribute("aSingleValue")

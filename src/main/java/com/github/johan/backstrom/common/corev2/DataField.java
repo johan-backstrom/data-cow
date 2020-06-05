@@ -13,13 +13,15 @@ public class DataField {
     private final Field field;
     private final Object object;
     private final String attributeId;
+    private final FieldType fieldType;
     private final Optional<Method> setterMethod;
     private final Optional<Method> getterMethod;
 
-    public DataField(String attributeId, Object object, Field field){
+    public DataField(String attributeId, Object object, Field field, FieldType fieldType){
         this.attributeId = attributeId;
         this.object = object;
         this.field = field;
+        this.fieldType = fieldType;
 
         this.setterMethod = getSetterMethod(object, field);
         this.getterMethod = getGetterMethod(object, field);
@@ -54,6 +56,18 @@ public class DataField {
         }
     }
 
+    public String getAttributeId(){
+        return attributeId;
+    }
+
+    public FieldType getFieldType(){
+        return fieldType;
+    }
+
+    public String getQualifiedFieldName(){
+        return String.format("%s.%s", field.getDeclaringClass(), field.getName());
+    }
+
     private Optional<Method> getSetterMethod(Object object, Field field){
         return Arrays.stream(object.getClass().getDeclaredMethods())
                 .filter(method -> method.getName().matches(getRegexForSetter(field)))
@@ -78,14 +92,5 @@ public class DataField {
         String startingLetter = field.getName().substring(0,1);
         String ending = field.getName().substring(1);
         return "^get(" + startingLetter.toLowerCase() + "|" + startingLetter.toUpperCase() + ")" + ending + "$";
-    }
-
-
-    public String getAttributeId(){
-        return attributeId;
-    }
-
-    public String getQualifiedFieldName(){
-        return String.format("%s.%s", field.getDeclaringClass(), field.getName());
     }
 }
