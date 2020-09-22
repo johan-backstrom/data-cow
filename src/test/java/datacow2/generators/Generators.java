@@ -1,11 +1,11 @@
 package datacow2.generators;
 
-import com.github.johan.backstrom.common.corev2.DataCow;
-import com.github.johan.backstrom.common.corev2.Generator;
-import com.github.johan.backstrom.common.corev2.References;
-import datacow2.models.simple.SimpleObjectWithMultipleAttributes;
+import com.github.johan.backstrom.corev2.DataCow;
+import com.github.johan.backstrom.corev2.Generator;
+import com.github.johan.backstrom.corev2.References;
+import datacow2.models.simple.MultipleAttributes;
 
-public class Generators {
+public class Generators implements com.github.johan.backstrom.corev2.Generators {
 
     @Generator("aSingleValue")
     public String aSingleValue(){
@@ -24,6 +24,11 @@ public class Generators {
 
     @Generator("aPrimitiveType")
     public int aPrimitiveType(){
+        return 123;
+    }
+
+    @Generator("aPrimitiveType2")
+    public int aPrimitiveType2(){
         return 123;
     }
 
@@ -65,8 +70,8 @@ public class Generators {
     }
 
     @Generator("complexType")
-    public SimpleObjectWithMultipleAttributes complexObject(){
-        return DataCow.generateDairyFor(SimpleObjectWithMultipleAttributes.class).milkCow();
+    public MultipleAttributes complexObject(){
+        return DataCow.generateDairyFor(MultipleAttributes.class).milkCow();
     }
 
     @Generator("cirkular1")
@@ -94,4 +99,17 @@ public class Generators {
     public String nullValue(){
         return null;
     }
+
+    @Generator("primitiveNull")
+    public Integer primitiveNull(){
+        return null;
+    }
+
+    @Generator("referencesNotFound")
+    public String referencesNotFound(
+            @References("notFound") String notFound
+    ){
+        return "This one referenced notFound: " + notFound;
+    }
+
 }

@@ -1,6 +1,6 @@
 package datacow2;
 
-import com.github.johan.backstrom.common.corev2.DataCow;
+import com.github.johan.backstrom.corev2.DataCow;
 import datacow2.models.complex.ObjectWithComplexType;
 import org.junit.Test;
 

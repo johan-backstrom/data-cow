@@ -1,7 +1,7 @@
 package datacow2.models.annotation;
 
-import com.github.johan.backstrom.common.corev2.Attribute;
-import com.github.johan.backstrom.common.corev2.WithGenerators;
+import com.github.johan.backstrom.corev2.Attribute;
+import com.github.johan.backstrom.corev2.WithGenerators;
 import datacow2.generators.Generators2;
 import datacow2.generators.Generators;
 

@@ -1,12 +1,12 @@
-package datacow2.models.annotation;
+package datacow2.models.simple;
 
 import com.github.johan.backstrom.corev2.Attribute;
 import com.github.johan.backstrom.corev2.WithGenerators;
-import datacow2.generators.GeneratorWithDuplicate;
+import datacow2.generators.GeneratorWithoutDefaultConstructor;
 import datacow2.generators.Generators;
 
-@WithGenerators({Generators.class, GeneratorWithDuplicate.class})
-public class SimpleObjectWithDupliacteGenerators {
+@WithGenerators(GeneratorWithoutDefaultConstructor.class)
+public class SingleAttributeGeneratorWithNoDefaultConstructor {
 
     @Attribute("aSingleValue")
     public String aSingleValue;
