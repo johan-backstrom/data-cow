@@ -20,6 +20,9 @@ Maven:
 </dependency>
 ```
 
+DataCow has no third party dependencies and is pure java-8. It will not 
+introduce any security or compatibility concerns. 
+
 ## Introduction
 
 The idea behind Data Cow is to be able to create datasets for testing with a minimum amount of maintenance applying the
