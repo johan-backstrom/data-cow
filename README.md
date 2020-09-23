@@ -56,7 +56,7 @@ generates the values accordingly to maintain internal consistency.
 So, should your fields always contain generated random values? For most use cases, completely random values are not what you want. 
 Take the example of a credit card payment. You may for example want to test different credit card networks (visa, MC etc.) but 
 for the particular test, the rest of the card information is not relevant. To handle this case, Data Cow has a 
-concept called "boundary values". By specifying one or more values in the information model before generating the data
+concept called **boundary values**. By specifying one or more values in the information model before generating the data
 (boundary values), Data Cow will generate values consistent with those values.
 
 This is what makes Data Cow powerful. In most scenarios, your test code that generates the data only needs know about
@@ -142,10 +142,19 @@ referenced attribute. Typing errors will of course be quite obvious at runtime i
 
 The default behaviour of Data Cow is to expect a no args constructor in the generator class.
 
+#### Boundary values
+
+To build a generic data generation capability you start by creating random values (although internally consistent) for 
+all your attributes. When you use your data for a specific purpose like writing a test, completely random data probably 
+isn't what you want. This is where boundary values will come in to play. 
+
+Boundary values are the requirements you have on your test data. the part of your test data that is relevant to your
+test. See "Generating data" below for usage.
+
 #### Data Generation
 
-When the data is built, Data Cow will start at an attribute and then scan the dependencies, the attributes that
-it dependes on. When an attribute with no dependencies is found, Data Cow will call the generator function on 
+When the data is built, Data Cow will start at an attribute and then scan its dependencies, the attributes that
+its data generation dependes on. When an attribute with no dependencies is found, Data Cow will call the generator function on 
 that attribute and then pass the results to all attributes depending on that attribute recursively until all 
 attributes have values. If an attribute already has a pre defined boundary value, the generator function will not be 
 called and the pre defined value is used instead.
@@ -174,7 +183,7 @@ public class ProblematicExample {
 
 What happens when Data Cow instantiates an object from this class, is that both these fields will be non null, and thus
 data Cow will not generate data for them. The recommended way to handle these problems is to change the primitive types 
-to reference types such as Integer and to declare values as null.
+to reference types such as Integer and to declare values without assignments.
 
  ```java
  public class NoLongerProblematicExample {
@@ -188,6 +197,10 @@ If this solution is not possible, it is also possible to use the "overwrite" con
  section below.
 
 ## Generating data
+
+This section contains practical guidance on how to use DataCow. _**This is the recommended way of working with Data Cow,**_
+but as you will see in the configuration section, there are a few tweaks you can apply, especially if you do not have
+full control over your dairy classes.
 
 #### A random person
 
@@ -243,17 +256,12 @@ public void generateRandomPerson(){
 
 }
 ```
-This is the recommended way of working with Data Cow. Many more examples can be found in the unit tests.
+
+Many more examples can be found in the unit tests.
 
 #### Controlling boundary values
 
-To build a generic data generation capability you start by creating random values (although internally consistent) 
-for all your attributes.
-
-When you use your data for a specific purpose like writing a test, completely random data probably isn't what you want. This
-is where boundary values will come in to play. If we extend the example from above we can use a boundary value to create an 
-object with the desired properties while letting the framework auto generate all the attributes that are not relevant to 
-our test.
+The boundary values are set to define the characteristics of the generated data.
 
 ```java
 public void generateRandomPerson(){
@@ -267,9 +275,12 @@ public void generateRandomPerson(){
 }
 ```
 
-This is very useful if you want to test logic that uses the sex of the person. Again, the power of Data Cow is that
+This is very useful if you, for example, want to test logic that uses the sex of the person. Again, the power of Data Cow is that
 this test will be completely unaware of the rest of the data model, thus resulting in much less re-work when making changes 
 to that data model.
+
+It is important to understand that the ```with``` method will allow you to modify the instace of your DairyClass created by DataCow.
+This means that you can mutate the object in any way you please, includes calling methods and setting public variables.
 
 #### Nesting objects
 
@@ -287,13 +298,14 @@ public CreditCard getCreditCard(){
 
 ## Configuration
 
-There a few different ways in which Data Cow can be configured to suit your needs. Configuration options are passed to 
-DataCow using the withConfiguration() method. With javas lambda functions there are two different ways to specify the
-config, either with a lambda or with a function reference.
+There are a few different ways in which Data Cow can be configured to suit your needs. Configuration options are passed to 
+DataCow using the withConfiguration() method or set in a static context. With javas lambda functions there are two
+different ways to specify the config, either with a lambda or with a function reference.
 
-Of course, withConfiguration returns the data cow object to multiple configurations options can be chained together.
+Of course, the ```withConfiguration``` method returns the data cow object to allow multiple configurations options to
+be chained together.
 
-Examples:
+Examples of instance config:
 
 ```java
 Person p = DataCow.generateDairyFor(Person.class)
@@ -306,8 +318,18 @@ Person p = DataCow.generateDairyFor(Person.class)
     .withConfiguration(Configuration::useVariableNamesAsAttributeId)    
     .milkCow();
 ```
+Example of static config:
 
-The following configuration options currently exists.
+```java
+DataCow.withStaticConfiguration(Configuration::useVariableNamesAsAttributeId);
+
+Person p = DataCow.generateDairyFor(Person.class)    
+    .milkCow();
+```
+
+The static method ```DataCow.useDefaultConfiguration();``` will reset the static config to DataCow defaults.
+
+The following configuration options currently exist.
 
 #### Use variable names as attribute ids
 
@@ -355,23 +377,18 @@ Person p = DataCow.generateDairyFor(Person.class)
 
 #### Overwrite specific attribute
 
-This will generate a value even when there is a value set, ignoring a boundary value or value
-defined in the dairy class. The method takes the attribute id of the field to attribute.
+In some special cases you may have a dairy classes that can not be modified that contains initialized
+values. By default DataCow will treat these initialized values as boundary values.
+
+By using the overwriteAttribute method of the Configuration class, you can make DataCow treat these values
+as normal attributes that will have data generated for it. The method takes the attribute id of the field to overwrite.
 
 ```java
 Person p = DataCow.generateDairyFor(Person.class)
     .withConfiguration(config -> config.overwriteAttribute("anAtttributeId"))
     .milkCow();
 ```
-
-#### Overwrite specific attributes
-
-In some special cases you may have a dairy classes that can not be modified that contains initialized
-values. By default DataCow will treat these initialized values as boundary values.
-
-By using the overwriteAttribute method of the Configuration class, you can make DataCow treat these values
-as normal attributes that will have data generated for it.
-
+Multiple attribute ids can be passed.
 ```java
 Person p = DataCow.generateDairyFor(Person.class)
     .withConfiguration(config -> config.overwriteAttribute("attribute1")
@@ -385,19 +402,18 @@ Person p = DataCow.generateDairyFor(Person.class)
     .milkCow();
 ``` 
 
-#### Overwrite primitive type attributes
-
-
-
 ## Dairy classes and generators that can not be changed
 
-If you are generating data using production code or third party libraries where you do not want to, or can't, annotate 
+If you are generating data using production code or third party classes where you do not want to, or can't, annotate 
 the fields of your dairy classes, you cannot use DataCow's default behaviour.
+
+A word of caution: _These options are just here to save your ass when it's already too late to turn back. Don't 
+use this as your default approach_.
 
 #### Dairy classes without no args constructor
 
-By default DataCow will instantiate the object for you, but this requires a no argument constructor. If your class
-does not have that, you can pass an object instance instead.
+By default, DataCow will instantiate the object for you, but this requires a no argument constructor. If your class
+doesn't have one, you can pass an object instance instead.
 
 ```java
 ClassWithConstructorArgument o = DataCow.generateDairyForInstance(new ClassWithConstructorArgument("test"))
@@ -421,13 +437,15 @@ Person p = DataCow.generateDairyFor(Person.class)
 
 If for some reason you are unable to add a no arg constructor to your generator class, you can
 pass an instance of a generator class to DataCow. If an instance is passed, data cow will not instantiate
-objects of that type, even if present in the @WithGenerators annotation. 
+objects of that type, even if present in the @WithGenerators annotation.
 
 ```java
 Person p = DataCow.generateDairyFor(Person.class)
-    .withGeneratorINstance(new PersonGenerators("Some arg"))
+    .withGeneratorInstance(new PersonGenerators("Some arg"))
     .milkCow();
 ``` 
+
+This can be extra useful for parameterizing your generators. 
 
 ## Pre built generators
 
@@ -456,16 +474,16 @@ public void createCreditCard(){
 ```
 
 There is also a class called DataHelper which has methods to help you get pseudo random numbers. There is a static method
-for setting the seed.
+for setting the seed ```DataHelper.setRandomSeed(aNumber)```. DataHelper is used by the pre built generators.
 
-Using seeded pseudo random numbers for generating test data is quite often very useful. This means that it is possible to 
-re-generate a data set identical to the one used in for example a nightly test run, assuming you are using the same
-code and the same seed of course.
+Using seeded pseudo random numbers for generating test data is often very useful. This means that it is possible to 
+re-generate a data set identical to the one used in a nightly test run, assuming you are using the same
+code and the same seed, of course.
 
 ## Extending generators and dairy classes
 
-Extending the ready made dairy classes and generators is best done with inheritance. @Attribute and @Generator annotations
-are inherited while the @WithGenerators annotation isn't. The following example shows how to extend the person generator.
+Extending the ready made dairy classes and generators is done with inheritance. ```@Attribute``` and ```@Generator``` annotations
+are inherited while the ```@WithGenerators``` annotation isn't. The following example shows how to extend the person generator.
 
 ```java
 @WithGenerators(ExtendedPersonGenerators.class)
@@ -481,6 +499,19 @@ public class ExtendedPersonGenerators extends PersonGenerators {
     }
 }
 ```
+
+## Serializing data
+
+DataCow creates the data as POJOs. This is quite often not the desired end result. Most of the time, you need data in
+a json format, SQL format, flat text file etc.
+
+Most of these things can easily be achieved with a few lines of code and there are plenty of frameworks out there to
+give you what you need. For example, the jackson library for json-serialization turns your java objects into json.
+
+A very common (but in my opinion bad) practice is to keep data in sql-scripts or json-files and then insert that data into 
+the system under test as a first step in an automated test suite. A much more effective way of achieving the same thing 
+is to generate the data and write the files "on the fly" with DataCow. When the data model changes, you only need to
+ change a few lines of your DataCow code and not go through hundreds or thousands of json-files or lines of SQL-DDLs. 
 
 ## Build
 
