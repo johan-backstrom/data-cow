@@ -1,5 +1,5 @@
 group 'com.github.johan-backstrom'
-version '1.0.1-SNAPSHOT'
+version '2.0.0-SNAPSHOT'
 
 apply plugin: 'maven'
 apply plugin: 'signing'
@@ -25,7 +25,7 @@ task sourcesJar(type: Jar) {
 artifacts {
     archives javadocJar, sourcesJar
 }
-/*
+
 signing {
     sign configurations.archives
 }
@@ -73,7 +73,7 @@ uploadArchives {
         }
     }
 }
-*/
+
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
