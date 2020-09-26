@@ -26,6 +26,7 @@ artifacts {
     archives javadocJar, sourcesJar
 }
 
+/*
 signing {
     sign configurations.archives
 }
@@ -53,7 +54,7 @@ uploadArchives {
                 scm {
                     connection 'scm:git@github.com:johan-backstrom/data-cow.git'
                     developerConnection 'scm:git@github.com:johan-backstrom/data-cow.git'
-                    url 'http://foo.googlecode.com/svn/trunk/'
+                    url 'https://github.com/johan-backstrom/data-cow'
                 }
 
                 licenses {
@@ -73,6 +74,7 @@ uploadArchives {
         }
     }
 }
+*/
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
