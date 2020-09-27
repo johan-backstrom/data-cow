@@ -3,6 +3,7 @@ package com.github.johan.backstrom.corev2;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Configuration{
 
@@ -10,7 +11,7 @@ public class Configuration{
     private boolean overwriteAllAttributes = false;
     private boolean failOnMissingGenerators = true;
     private boolean failOnBoundaryValuesWithMissingGenerators = true;
-    private Set<String> attributeIdsToOverwrite = new HashSet<>();
+    private Set<AttributeId> attributeIdsToOverwrite = new HashSet<>();
 
     public Configuration useVariableNamesAsAttributeId() {
         this.useFieldByName = true;
@@ -23,7 +24,9 @@ public class Configuration{
     }
 
     public Configuration overwriteAttribute(String... attributeId){
-        attributeIdsToOverwrite.addAll(Arrays.asList(attributeId));
+        attributeIdsToOverwrite.addAll(
+                Arrays.stream(attributeId).map(s -> new AttributeId(s)).collect(Collectors.toList())
+        );
         return this;
     }
 
@@ -53,21 +56,25 @@ public class Configuration{
         return failOnBoundaryValuesWithMissingGenerators;
     }
 
-    protected boolean shouldAttributeBeOverwritten(String attributeId){
+    protected boolean shouldAttributeBeOverwritten(AttributeId attributeId){
         return attributeIdsToOverwrite.contains(attributeId);
     }
 
     protected Configuration getCopyOfConfiguration(){
-        return new Configuration(useFieldByName, overwriteAllAttributes, failOnMissingGenerators, failOnBoundaryValuesWithMissingGenerators);
+        return new Configuration(useFieldByName, overwriteAllAttributes, failOnMissingGenerators, failOnBoundaryValuesWithMissingGenerators, attributeIdsToOverwrite);
     }
 
     protected Configuration(){
     }
 
-    private Configuration(boolean useFieldByName, boolean overwriteAllAttributes, boolean failOnMissingGenerators, boolean failOnBoundaryValuesWithMissingGenerators) {
+    private Configuration(boolean useFieldByName, boolean overwriteAllAttributes, boolean failOnMissingGenerators, boolean failOnBoundaryValuesWithMissingGenerators, Set<AttributeId> attributeIdsToOverwrite) {
         this.useFieldByName = useFieldByName;
         this.overwriteAllAttributes = overwriteAllAttributes;
         this.failOnMissingGenerators = failOnMissingGenerators;
         this.failOnBoundaryValuesWithMissingGenerators = failOnBoundaryValuesWithMissingGenerators;
+
+        this.attributeIdsToOverwrite = attributeIdsToOverwrite.stream()
+                .map(a -> new AttributeId(a.getAttributeId()))
+                .collect(Collectors.toSet());
     }
 }

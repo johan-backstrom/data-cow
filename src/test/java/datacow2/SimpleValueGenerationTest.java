@@ -2,6 +2,8 @@ package datacow2;
 
 import com.github.johan.backstrom.corev2.Configuration;
 import com.github.johan.backstrom.corev2.DataCow;
+import com.github.johan.backstrom.corev2.entities.person.Person;
+import com.github.johan.backstrom.corev2.entities.person.Sex;
 import com.github.johan.backstrom.corev2.exception.GeneratorNotFoundException;
 import datacow2.models.annotation.GeneratorNotFound;
 import datacow2.models.annotation.NoGeneratorSpecified;
@@ -11,6 +13,8 @@ import datacow2.models.simple.SingleAttribute;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static com.github.johan.backstrom.corev2.entities.person.Sex.female;
+import static com.github.johan.backstrom.corev2.entities.person.Sex.male;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -100,5 +104,20 @@ public class SimpleValueGenerationTest {
     @Test(expected = GeneratorNotFoundException.class)
     public void noGeneratorClassDefined(){
         NoGeneratorSpecified o = DataCow.generateDairyFor(NoGeneratorSpecified.class).milkCow();
+    }
+
+    @Test
+    public void reuseCow(){
+
+        DataCow<Person> theCow = DataCow.generateDairyFor(Person.class);
+
+        theCow.with(p -> p.setSex(male));
+        Person someMan = theCow.milkCow();
+        assertEquals(male, someMan.getSex());
+
+        theCow.with(p -> p.setSex(female));
+        Person mysteryPerson = theCow.milkCow();
+        assertEquals(someMan.getGivenName(), mysteryPerson.getGivenName());
+
     }
 }

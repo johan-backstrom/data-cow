@@ -299,6 +299,24 @@ public CreditCard getCreditCard(){
 } 
 ```
 
+#### Reusing the data cow object
+
+The data cow object itself is not intended to be reused, i.e. calling the milkCow method more than once.
+Although it is possible, you will end up with weird inconsistent data, since the DataCow object will hold
+and mutate an internal dairy-object.
+
+````java
+DataCow<Person> theCow = DataCow.generateDairyFor(Person.class);
+
+theCow.with(p -> p.setSex(male));
+Person someMan = theCow.milkCow();
+
+theCow.with(p -> p.setSex(female));
+Person someWoman = theCow.milkCow();
+
+assertEquals(someMan.getGivenName(), someWoman.getGivenName());
+````
+
 ## Configuration
 
 There are a few different ways in which Data Cow can be configured to suit your needs. Configuration options are passed to 

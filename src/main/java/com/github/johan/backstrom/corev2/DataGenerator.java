@@ -14,15 +14,15 @@ public class DataGenerator {
 
     private final Method method;
     private final Object object;
-    private final String attributeId;
+    private final AttributeId attributeId;
 
-    private DataGenerator(String attributeId, Object object, Method method){
+    private DataGenerator(AttributeId attributeId, Object object, Method method) {
         this.attributeId = attributeId;
         this.object = object;
         this.method = method;
     }
 
-    public Object invokeGenerator(Object[] parameters){
+    public Object invokeGenerator(Object[] parameters) {
         try {
             return method.invoke(object, parameters);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -30,22 +30,24 @@ public class DataGenerator {
         }
     }
 
-    public String getAttributeId(){
+    public AttributeId getAttributeId() {
         return attributeId;
     }
 
-    public String getQualifiedMethodName(){
+    public String getQualifiedMethodName() {
         return String.format("%s.%s", method.getDeclaringClass(), method.getName());
     }
 
-    public List<String> getParentFieldAttributeIds(){
+    public List<AttributeId> getParentFieldAttributeIds() {
         // Get its dependencies (TODO: Check by Annotation, type and name, type)
         return Arrays.stream(method.getParameters())
                 .map(
                         parameter -> {
                             if (parameter.getAnnotation(References.class) != null) {
-                                return Optional.ofNullable(parameter.getAnnotation(References.class).value())
-                                        .orElseThrow(RuntimeException::new);
+                                return new AttributeId(
+                                        Optional.ofNullable(parameter.getAnnotation(References.class).value())
+                                                .orElseThrow(RuntimeException::new)
+                                );
                             } else {
                                 throw new UnknownGeneratorArgumentException(String.format("Parameter %s to method %s has no reference", parameter.getName(), method.getName()));
                             }
@@ -53,7 +55,7 @@ public class DataGenerator {
                 ).collect(Collectors.toList());
     }
 
-    public static MethodBuilder builder(){
+    public static MethodBuilder builder() {
         return new MethodBuilder();
     }
 
@@ -61,7 +63,7 @@ public class DataGenerator {
 
         private Method method;
         private Object object;
-        private String attributeId;
+        private AttributeId attributeId;
 
         public MethodBuilder setMethod(Method method) {
             this.method = method;
@@ -73,12 +75,12 @@ public class DataGenerator {
             return this;
         }
 
-        public MethodBuilder setAttributeId(String attributeId) {
+        public MethodBuilder setAttributeId(AttributeId attributeId) {
             this.attributeId = attributeId;
             return this;
         }
 
-        public DataGenerator build(){
+        public DataGenerator build() {
             return new DataGenerator(attributeId, object, method);
         }
     }

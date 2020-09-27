@@ -9,16 +9,16 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Optional;
 
-public class DataField {
+public class DataField implements Comparable<DataField>{
 
     private final Field field;
     private final Object object;
-    private final String attributeId;
+    private final AttributeId attributeId;
     private final FieldCategory fieldCategory;
     private final Optional<Method> setterMethod;
     private final Optional<Method> getterMethod;
 
-    public DataField(String attributeId, Object object, Field field, FieldCategory fieldCategory){
+    public DataField(AttributeId attributeId, Object object, Field field, FieldCategory fieldCategory){
         this.attributeId = attributeId;
         this.object = object;
         this.field = field;
@@ -57,7 +57,7 @@ public class DataField {
         }
     }
 
-    public String getAttributeId(){
+    public AttributeId getAttributeId(){
         return attributeId;
     }
 
@@ -97,5 +97,11 @@ public class DataField {
         String startingLetter = field.getName().substring(0,1);
         String ending = field.getName().substring(1);
         return "^get(" + startingLetter.toLowerCase() + "|" + startingLetter.toUpperCase() + ")" + ending + "$";
+    }
+
+    @Override
+    public int compareTo(DataField dataField) {
+        String attributeIdToCompareTo = dataField.getAttributeId().getAttributeId();
+        return attributeId.getAttributeId().compareTo(attributeIdToCompareTo);
     }
 }

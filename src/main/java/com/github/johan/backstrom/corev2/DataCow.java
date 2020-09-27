@@ -15,12 +15,12 @@ public class DataCow<T> {
     private static Configuration staticConfig = new Configuration();
     private final Configuration config = staticConfig.getCopyOfConfiguration();
     private final Class<T> clazz;
-    private Map<String, DataGenerator> generators = new HashMap<>();
-    private Map<String, DataField> allFields = new HashMap<>();
+    private Map<AttributeId, DataGenerator> generators = new HashMap<>();
+    private Map<AttributeId, DataField> dataFields = new HashMap<>();
 
     private final Set<Class> withGenerators = new HashSet<>();
     private final Set<Generators> withGeneratorInstances = new HashSet<>();
-    private final Set<String> handledFieldAttributeIds = new HashSet<>();
+    private final Set<AttributeId> handledFieldAttributeIds = new HashSet<>();
 
     private DataCow(Class<T> clazz) {
         this.clazz = clazz;
@@ -38,6 +38,12 @@ public class DataCow<T> {
         return theCow;
     }
 
+    public static <T> DataCow<T> generateDairyForInstance(T object) {
+        DataCow<T> theCow = new DataCow(object.getClass());
+        theCow.theDairy = object;
+        return theCow;
+    }
+
     public static void withStaticConfiguration(DataCowConfiguration config) {
         config.getConfiguration(staticConfig);
     }
@@ -46,14 +52,8 @@ public class DataCow<T> {
         staticConfig = new Configuration();
     }
 
-    public static <T> DataCow<T> generateDairyForInstance(T object) {
-        DataCow<T> theCow = new DataCow(object.getClass());
-        theCow.theDairy = object;
-        return theCow;
-    }
-
     public DataCow<T> with(With<T> with) {
-        with.with(theDairy);
+        with.mutateObject(theDairy);
         return this;
     }
 
@@ -75,13 +75,13 @@ public class DataCow<T> {
     public T milkCow() {
 
         generators = collectGenerators();
-        allFields = collectFields();
-        checkThatAllFieldsHaveGenerators(generators, allFields);
-        allFields.values().forEach(field -> milkFieldAndParentsRecursively(field));
+        dataFields = collectFields();
+        checkThatAllFieldsHaveGenerators(generators, dataFields);
+        dataFields.values().stream().sorted().forEach(field -> milkFieldAndParentsRecursively(field));
         return theDairy;
     }
 
-    private Map<String, DataGenerator> collectGenerators() {
+    private Map<AttributeId, DataGenerator> collectGenerators() {
 
         if (clazz.getAnnotation(WithGenerators.class) != null) {
             withGenerators.addAll(Arrays.asList(clazz.getAnnotation(WithGenerators.class).value()));
@@ -91,45 +91,56 @@ public class DataCow<T> {
             throw new GeneratorNotFoundException("@WithGenerators was not specified in class " + clazz.getName());
         }
 
-        Map<Class, Object> generatorInstanceObjects = withGeneratorInstances.stream()
+        Map<Class, Object> generatorInstanceObjects = collectGeneratorInstanceObjects();
+        return collectDataGeneratorsFromGeneratorInstances(generatorInstanceObjects);
+    }
+
+    private Map<Class, Object> collectGeneratorInstanceObjects() {
+        Map<Class, Object> generatorInstanceObjects = new HashMap<>();
+
+        generatorInstanceObjects.putAll(withGeneratorInstances.stream()
                 .collect(
                         Collectors.toMap(
                                 generatorInstance -> generatorInstance.getClass(),
                                 generatorInstance -> generatorInstance
                         )
-                );
-
-        generatorInstanceObjects.putAll(
-                withGenerators.stream()
-                        .filter(aClass -> !generatorInstanceObjects.containsKey(aClass))
-                        .collect(
-                                Collectors.toMap(
-                                        aClass -> aClass,
-                                        aClass -> {
-                                            try {
-                                                return aClass.newInstance();
-                                            } catch (InstantiationException | IllegalAccessException e) {
-                                                throw new GeneratorCouldNotBeInstantiatedException(
-                                                        String.format(
-                                                                "Generator class %s could not be instantiated, does it have a public no-args constructor?",
-                                                                aClass.getName()
-                                                        ),
-                                                        e
-                                                );
-                                            }
-                                        }
-                                )
-                        )
+                )
         );
 
+        // Only instantiate generator classes that are not already passed as instances
+        generatorInstanceObjects.putAll(withGenerators.stream()
+                .filter(aClass -> !generatorInstanceObjects.containsKey(aClass))
+                .collect(
+                        Collectors.toMap(
+                                aClass -> aClass,
+                                aClass -> {
+                                    try {
+                                        return aClass.newInstance();
+                                    } catch (InstantiationException | IllegalAccessException e) {
+                                        throw new GeneratorCouldNotBeInstantiatedException(
+                                                String.format(
+                                                        "Generator class %s could not be instantiated, does it have a public no-args constructor?",
+                                                        aClass.getName()
+                                                ),
+                                                e
+                                        );
+                                    }
+                                }
+                        )
+                )
+        );
 
-        Map<String, DataGenerator> generators = new HashMap<>();
+        return generatorInstanceObjects;
+    }
+
+    private Map<AttributeId, DataGenerator> collectDataGeneratorsFromGeneratorInstances(Map<Class, Object> generatorInstanceObjects) {
+        Map<AttributeId, DataGenerator> generators = new HashMap<>();
 
         for (Class generatorClass : generatorInstanceObjects.keySet()) {
             Arrays.stream(generatorClass.getMethods())
                     .filter(method -> method.isAnnotationPresent(Generator.class))
                     .map(method -> DataGenerator.builder()
-                            .setAttributeId(method.getDeclaredAnnotation(Generator.class).value())
+                            .setAttributeId(new AttributeId(method.getDeclaredAnnotation(Generator.class).value()))
                             .setMethod(method)
                             .setObject(generatorInstanceObjects.get(generatorClass))
                             .build()
@@ -147,16 +158,19 @@ public class DataCow<T> {
                     }
             );
         }
+
         return generators;
     }
 
-    private Map<String, DataField> collectFields() {
+    private Map<AttributeId, DataField> collectFields() {
         return getAllFields(theDairy.getClass()).stream()
                 .filter(field -> field.isAnnotationPresent(Attribute.class) || config.useFieldByName())
                 .map(field -> new DataField(
-                                field.isAnnotationPresent(Attribute.class)
-                                        ? field.getAnnotationsByType(Attribute.class)[0].value()
-                                        : field.getName(),
+                                new AttributeId(
+                                        field.isAnnotationPresent(Attribute.class)
+                                                ? field.getAnnotationsByType(Attribute.class)[0].value()
+                                                : field.getName()
+                                ),
                                 theDairy,
                                 field,
                                 field.isAnnotationPresent(Attribute.class) ? annotatedField : namedField
@@ -191,7 +205,7 @@ public class DataCow<T> {
         }
     }
 
-    private void checkThatAllFieldsHaveGenerators(Map<String, DataGenerator> generators, Map<String, DataField> fields) {
+    private void checkThatAllFieldsHaveGenerators(Map<AttributeId, DataGenerator> generators, Map<AttributeId, DataField> fields) {
 
         fields.forEach(
                 (attributeId, dataField) -> {
@@ -236,7 +250,7 @@ public class DataCow<T> {
             return null;
         } else {
             Object[] parameterValues = generator.getParentFieldAttributeIds().stream()
-                    .map(attributeId -> Optional.ofNullable(allFields.get(attributeId))
+                    .map(attributeId -> Optional.ofNullable(dataFields.get(attributeId))
                             .orElseThrow(
                                     () -> new UnknownGeneratorReferenceException(String.format("Attribute %s referenced from a generator could not be found", attributeId))
                             )
