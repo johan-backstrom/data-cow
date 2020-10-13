@@ -5,7 +5,7 @@ import com.github.johan.backstrom.corev2.Generator;
 import com.github.johan.backstrom.corev2.References;
 import datacow2.models.simple.MultipleAttributes;
 
-public class Generators implements com.github.johan.backstrom.corev2.Generators {
+public class Generators {
 
     @Generator("aSingleValue")
     public String aSingleValue(){

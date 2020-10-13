@@ -19,7 +19,7 @@ public class DataCow<T> {
     private Map<AttributeId, DataField> dataFields = new HashMap<>();
 
     private final Set<Class> withGenerators = new HashSet<>();
-    private final Set<Generators> withGeneratorInstances = new HashSet<>();
+    private final Set<Object> withGeneratorInstances = new HashSet<>();
     private final Set<AttributeId> handledFieldAttributeIds = new HashSet<>();
 
     private DataCow(Class<T> clazz) {
@@ -62,7 +62,7 @@ public class DataCow<T> {
         return this;
     }
 
-    public DataCow<T> withGenerator(Generators generator) {
+    public DataCow<T> withGenerator(Object generator) {
         this.withGeneratorInstances.add(generator);
         return this;
     }

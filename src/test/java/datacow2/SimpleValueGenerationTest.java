@@ -3,10 +3,11 @@ package datacow2;
 import com.github.johan.backstrom.corev2.Configuration;
 import com.github.johan.backstrom.corev2.DataCow;
 import com.github.johan.backstrom.corev2.entities.person.Person;
-import com.github.johan.backstrom.corev2.entities.person.Sex;
+import com.github.johan.backstrom.corev2.exception.DuplicateAttributeException;
 import com.github.johan.backstrom.corev2.exception.GeneratorNotFoundException;
 import datacow2.models.annotation.GeneratorNotFound;
 import datacow2.models.annotation.NoGeneratorSpecified;
+import datacow2.models.simple.DuplicateAttribute;
 import datacow2.models.simple.MultipleAttributes;
 import datacow2.models.simple.ObjectWithNullValue;
 import datacow2.models.simple.SingleAttribute;
@@ -65,7 +66,7 @@ public class SimpleValueGenerationTest {
                 .milkCow();
 
         assertEquals("SimpleGeneratedValue", o.aSingleValue);
-        assertEquals(null, o.nullValue);
+        assertNull(o.nullValue);
     }
 
 
@@ -119,5 +120,10 @@ public class SimpleValueGenerationTest {
         Person mysteryPerson = theCow.milkCow();
         assertEquals(someMan.getGivenName(), mysteryPerson.getGivenName());
 
+    }
+
+    @Test(expected = DuplicateAttributeException.class)
+    public void duplicateAttributeId(){
+        DuplicateAttribute d = DataCow.generateDairyFor(DuplicateAttribute.class).milkCow();
     }
 }

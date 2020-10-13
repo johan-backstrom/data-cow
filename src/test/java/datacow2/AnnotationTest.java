@@ -12,11 +12,9 @@ import datacow2.generators.Generators2;
 import datacow2.models.annotation.*;
 import datacow2.models.simple.ConstructorWithArgument;
 import datacow2.models.simple.SingleAttributeGeneratorWithNoDefaultConstructor;
-import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class AnnotationTest {
 
@@ -31,7 +29,7 @@ public class AnnotationTest {
     }
 
     @Test(expected = DuplicateAttributeException.class)
-    public void duplicateAttributeId(){
+    public void duplicateGeneratorIds(){
         SimpleObjectWithDupliacteGenerators o = DataCow.generateDairyFor(SimpleObjectWithDupliacteGenerators.class)
                 .milkCow();
     }
@@ -120,4 +118,5 @@ public class AnnotationTest {
 
         assertEquals("hello", o.notFound);
     }
+
 }

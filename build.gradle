@@ -1,5 +1,5 @@
 group 'com.github.johan-backstrom'
-version '2.0.0'
+version '2.0.1-SNAPSHOT'
 
 apply plugin: 'maven'
 apply plugin: 'signing'
